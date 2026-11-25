@@ -34,7 +34,10 @@ def run(db,x):
         if not original or original['owner']!=order['owner'] or old_names!=new_names:
             return {'decision':'renew_scope_changed'}
         for host in new_names:
-            if not allowed(db,host,order['owner'],x['at']):return {'decision':'ownership_changed'}
+            claim=allowed(db,host,order['owner'],x['at'])
+            sealed=one(db,'SELECT epoch FROM order_names WHERE order_id=? AND host=?',(x['order'],host))
+            if not claim or claim['epoch']!=sealed['epoch'] or claim['lease_until']<x['expires']:
+                return {'decision':'ownership_changed'}
         if one(db,'SELECT serial FROM certificates WHERE serial=?',(x['serial'],)):
             return {'decision':'serial_conflict'}
         db.execute('INSERT INTO certificates VALUES(?,?,?,?,?)',(x['serial'],x['order'],x['not_before'],x['expires'],'active'))

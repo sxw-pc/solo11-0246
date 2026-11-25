@@ -19,11 +19,13 @@ def run(db,x):
         name=one(db,'SELECT * FROM order_names WHERE order_id=? AND host=?',(order['id'],x['host'])) if order else None
         if not cert or cert['status']!='active' or not cert['not_before']<=x['at']<cert['expires'] or not deployed or not name or not allowed(db,x['host'],order['owner'],x['at']):
             return {'decision':'certificate_unavailable'}
-        if not gateway or any(not one(db,'SELECT * FROM backends WHERE id=? AND healthy=1',(b,)) for b in (x['old_backend'],x['new_backend'])):
+        old_backend=one(db,'SELECT * FROM backends WHERE id=? AND healthy=1',(x['old_backend'],))
+        new_backend=one(db,'SELECT * FROM backends WHERE id=? AND healthy=1',(x['new_backend'],))
+        if not gateway or not old_backend or not new_backend:
             return {'decision':'backend_unavailable'}
         if one(db,"SELECT id FROM plans WHERE host=? AND status IN ('locked','active')",(x['host'],)):
             return {'decision':'overlapping_plan'}
-        db.execute('INSERT INTO plans VALUES(?,?,?,?,?,?,?,?,?)',(x['id'],x['host'],x['claim_epoch'],x['serial'],x['gateway'],x['old_backend'],x['new_backend'],0,'locked'))
+        db.execute('INSERT INTO plans VALUES(?,?,?,?,?,?,?,?,?,?,?)',(x['id'],x['host'],x['claim_epoch'],x['serial'],x['gateway'],x['old_backend'],x['new_backend'],old_backend['epoch'],new_backend['epoch'],0,'locked'))
         return {'decision':'locked'}
     plan=one(db,'SELECT * FROM plans WHERE id=?',(x['plan'],))
     if not plan:return {'decision':'unknown_plan'}
@@ -40,7 +42,11 @@ def run(db,x):
         order=one(db,'SELECT * FROM orders WHERE id=?',(cert['order_id'],)) if cert else None
         gateway=one(db,'SELECT * FROM gateways WHERE id=?',(plan['gateway'],))
         deployed=one(db,'SELECT * FROM deployments WHERE serial=? AND gateway=? AND gateway_epoch=?',(plan['serial'],plan['gateway'],gateway['epoch'] if gateway else -1))
+        old_backend=one(db,'SELECT * FROM backends WHERE id=?',(plan['old_backend'],))
+        new_backend=one(db,'SELECT * FROM backends WHERE id=?',(plan['new_backend'],))
         if not sample or not sample['healthy'] or sample['at']>x['at'] or x['at']-sample['at']>10:return {'decision':'health_unconfirmed'}
+        if not old_backend or not new_backend or not old_backend['healthy'] or not new_backend['healthy'] or old_backend['epoch']!=plan['old_epoch'] or new_backend['epoch']!=plan['new_epoch']:
+            return {'decision':'backend_changed'}
         if not claim or claim['epoch']!=plan['claim_epoch'] or claim['status']!='verified' or not cert or cert['status']!='active' or cert['expires']<=x['at'] or not deployed or not order or not allowed(db,plan['host'],order['owner'],x['at']):
             return {'decision':'contract_changed'}
         next_stage=plan['stage']+1

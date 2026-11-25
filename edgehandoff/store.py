@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS certificates(serial TEXT PRIMARY KEY,order_id TEXT,no
 CREATE TABLE IF NOT EXISTS gateways(id TEXT PRIMARY KEY,epoch INTEGER);
 CREATE TABLE IF NOT EXISTS deployments(id TEXT PRIMARY KEY,serial TEXT,gateway TEXT,gateway_epoch INTEGER,at INTEGER);
 CREATE TABLE IF NOT EXISTS backends(id TEXT PRIMARY KEY,healthy INTEGER,epoch INTEGER);
-CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY,host TEXT,claim_epoch INTEGER,serial TEXT,gateway TEXT,old_backend TEXT,new_backend TEXT,stage INTEGER,status TEXT);
+CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY,host TEXT,claim_epoch INTEGER,serial TEXT,gateway TEXT,old_backend TEXT,new_backend TEXT,old_epoch INTEGER,new_epoch INTEGER,stage INTEGER,status TEXT);
 CREATE TABLE IF NOT EXISTS samples(id TEXT PRIMARY KEY,plan_id TEXT,stage INTEGER,at INTEGER,healthy INTEGER);
 CREATE TABLE IF NOT EXISTS rollbacks(id TEXT PRIMARY KEY,plan_id TEXT,at INTEGER,status TEXT);
 CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT,subsystem TEXT,request_id TEXT UNIQUE,input TEXT,result TEXT);

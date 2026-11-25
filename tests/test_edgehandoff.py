@@ -89,5 +89,16 @@ class BusinessTests(unittest.TestCase):
         self.assertEqual(self.act('certificate','renew',predecessor='serial-1',order='renew-order',serial='serial-2',at=20,not_before=20,expires=95),'renewed')
         self.assertEqual(one(self.db,'SELECT status FROM certificates WHERE serial=?',('serial-1',))['status'],'active')
         self.assertEqual(one(self.db,'SELECT status FROM certificates WHERE serial=?',('serial-2',))['status'],'active')
+    def test_renewal_cannot_outlive_current_hostname_lease(self):
+        self.fixture('ownership_normal');self.fixture('certificate_normal')
+        self.act('certificate','order',id='long-renew',owner='team-b',names=['edge.example'],at=10)
+        self.assertEqual(self.act('certificate','renew',predecessor='serial-1',order='long-renew',serial='too-long',at=20,not_before=20,expires=110),'ownership_changed')
+        self.assertIsNone(one(self.db,'SELECT * FROM certificates WHERE serial=?',('too-long',)))
+    def test_backend_change_after_plan_blocks_stage(self):
+        self.base()
+        self.act('cutover','sample',id='good-2',plan='cut-1',stage=2,at=10,healthy=True)
+        self.act('cutover','backend',id='new',epoch=2,healthy=False)
+        self.assertEqual(self.act('cutover','advance',plan='cut-1',at=11),'backend_changed')
+        self.assertEqual(one(self.db,'SELECT stage FROM plans WHERE id=?',('cut-1',))['stage'],1)
 
 if __name__=='__main__':unittest.main()
