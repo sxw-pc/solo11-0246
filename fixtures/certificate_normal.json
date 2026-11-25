@@ -1,0 +1,6 @@
+[
+ {"request_id":"c-gateway","op":"gateway","id":"gw-1","epoch":1},
+ {"request_id":"c-order","op":"order","id":"order-1","owner":"team-b","names":["edge.example"],"at":4},
+ {"request_id":"c-issue","op":"issue","order":"order-1","serial":"serial-1","not_before":5,"expires":80},
+ {"request_id":"c-deploy","op":"deploy","id":"receipt-1","serial":"serial-1","gateway":"gw-1","gateway_epoch":1,"at":6}
+]

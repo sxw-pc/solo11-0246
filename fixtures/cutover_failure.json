@@ -1,0 +1,4 @@
+[
+ {"request_id":"t-bad-sample","op":"sample","id":"sample-2","plan":"cut-1","stage":2,"at":10,"healthy":false},
+ {"request_id":"t-bad-advance","op":"advance","plan":"cut-1","at":11}
+]

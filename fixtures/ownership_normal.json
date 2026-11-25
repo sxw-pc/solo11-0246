@@ -1,0 +1,5 @@
+[
+ {"request_id":"h-claim","op":"claim","host":"edge.example","holder":"team-a","epoch":1,"lease_until":100,"challenge":"dns-a","at":1},
+ {"request_id":"h-proof","op":"prove","host":"edge.example","epoch":1,"challenge":"dns-a","at":2},
+ {"request_id":"h-delegate","op":"delegate","id":"delegation-a","host":"edge.example","grantor":"team-a","grantee":"team-b","scope":"/","until_ts":90,"at":3}
+]

@@ -1,0 +1,7 @@
+[
+ {"request_id":"t-old","op":"backend","id":"old","epoch":1,"healthy":true},
+ {"request_id":"t-new","op":"backend","id":"new","epoch":1,"healthy":true},
+ {"request_id":"t-plan","op":"plan","id":"cut-1","host":"edge.example","claim_epoch":1,"serial":"serial-1","gateway":"gw-1","old_backend":"old","new_backend":"new","at":7},
+ {"request_id":"t-sample","op":"sample","id":"sample-1","plan":"cut-1","stage":1,"at":8,"healthy":true},
+ {"request_id":"t-advance","op":"advance","plan":"cut-1","at":9}
+]
