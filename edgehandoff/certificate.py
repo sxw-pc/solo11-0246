@@ -23,6 +23,23 @@ def run(db,x):
         db.execute('INSERT INTO orders VALUES(?,?,?,?)',(x['id'],x['owner'],'accepted',at))
         db.executemany('INSERT INTO order_names VALUES(?,?,?)',[(x['id'],h,c['epoch']) for h,c in zip(names,claims)])
         return {'decision':'accepted','names':len(names)}
+    if op=='renew':
+        prior=one(db,'SELECT * FROM certificates WHERE serial=?',(x['predecessor'],))
+        order=one(db,"SELECT * FROM orders WHERE id=? AND status='accepted'",(x['order'],))
+        if not prior or prior['status']!='active' or not order or x['at']>=prior['expires'] or x['not_before']>=x['expires']:
+            return {'decision':'renew_denied'}
+        original=one(db,'SELECT owner FROM orders WHERE id=?',(prior['order_id'],))
+        old_names={r['host'] for r in db.execute('SELECT host FROM order_names WHERE order_id=?',(prior['order_id'],))}
+        new_names={r['host'] for r in db.execute('SELECT host FROM order_names WHERE order_id=?',(x['order'],))}
+        if not original or original['owner']!=order['owner'] or old_names!=new_names:
+            return {'decision':'renew_scope_changed'}
+        for host in new_names:
+            if not allowed(db,host,order['owner'],x['at']):return {'decision':'ownership_changed'}
+        if one(db,'SELECT serial FROM certificates WHERE serial=?',(x['serial'],)):
+            return {'decision':'serial_conflict'}
+        db.execute('INSERT INTO certificates VALUES(?,?,?,?,?)',(x['serial'],x['order'],x['not_before'],x['expires'],'active'))
+        db.execute("UPDATE orders SET status='issued' WHERE id=?",(x['order'],))
+        return {'decision':'renewed','predecessor_active':True}
     if op=='issue':
         order=one(db,'SELECT * FROM orders WHERE id=?',(x['order'],))
         if not order or order['status']!='accepted' or x['not_before']>=x['expires']:return {'decision':'issue_denied'}

@@ -83,5 +83,11 @@ class BusinessTests(unittest.TestCase):
         self.base()
         self.assertEqual(self.act('certificate','revoke',serial='serial-1'),'revoked')
         self.assertEqual(self.act('cutover','rollback',id='bad-rollback',plan='cut-1',at=12),'rollback_blocked')
+    def test_renewal_preserves_old_certificate_until_deployed(self):
+        self.fixture('ownership_normal');self.fixture('certificate_normal')
+        self.assertEqual(self.act('certificate','order',id='renew-order',owner='team-b',names=['edge.example'],at=10),'accepted')
+        self.assertEqual(self.act('certificate','renew',predecessor='serial-1',order='renew-order',serial='serial-2',at=20,not_before=20,expires=95),'renewed')
+        self.assertEqual(one(self.db,'SELECT status FROM certificates WHERE serial=?',('serial-1',))['status'],'active')
+        self.assertEqual(one(self.db,'SELECT status FROM certificates WHERE serial=?',('serial-2',))['status'],'active')
 
 if __name__=='__main__':unittest.main()
