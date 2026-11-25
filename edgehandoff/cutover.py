@@ -17,7 +17,7 @@ def run(db,x):
         if not claim or claim['status']!='verified' or claim['epoch']!=x['claim_epoch'] or claim['lease_until']<x['at']:
             return {'decision':'ownership_unavailable'}
         name=one(db,'SELECT * FROM order_names WHERE order_id=? AND host=?',(order['id'],x['host'])) if order else None
-        if not cert or cert['status']!='active' or not cert['not_before']<=x['at']<cert['expires'] or not deployed or not name or not allowed(db,x['host'],order['owner'],x['at']):
+        if not cert or cert['status']!='active' or not cert['not_before']<=x['at']<cert['expires'] or not deployed or not name or name['epoch']!=claim['epoch'] or not allowed(db,x['host'],order['owner'],x['at']):
             return {'decision':'certificate_unavailable'}
         old_backend=one(db,'SELECT * FROM backends WHERE id=? AND healthy=1',(x['old_backend'],))
         new_backend=one(db,'SELECT * FROM backends WHERE id=? AND healthy=1',(x['new_backend'],))
@@ -55,7 +55,11 @@ def run(db,x):
     if op=='rollback':
         old=one(db,'SELECT * FROM backends WHERE id=?',(plan['old_backend'],))
         cert=one(db,'SELECT * FROM certificates WHERE serial=?',(plan['serial'],))
-        if not old or not old['healthy'] or not cert or cert['status']!='active' or not cert['not_before']<=x['at']<cert['expires']:
+        order=one(db,'SELECT * FROM orders WHERE id=?',(cert['order_id'],)) if cert else None
+        claim=one(db,'SELECT * FROM claims WHERE host=?',(plan['host'],))
+        gateway=one(db,'SELECT * FROM gateways WHERE id=?',(plan['gateway'],))
+        deployed=one(db,'SELECT id FROM deployments WHERE serial=? AND gateway=? AND gateway_epoch=?',(plan['serial'],plan['gateway'],gateway['epoch'] if gateway else -1))
+        if not old or not old['healthy'] or old['epoch']!=plan['old_epoch'] or not cert or cert['status']!='active' or not cert['not_before']<=x['at']<cert['expires'] or not claim or claim['status']!='verified' or claim['epoch']!=plan['claim_epoch'] or not order or not allowed(db,plan['host'],order['owner'],x['at']) or not deployed:
             db.execute('INSERT INTO rollbacks VALUES(?,?,?,?)',(x['id'],x['plan'],x['at'],'blocked'))
             return {'decision':'rollback_blocked'}
         db.execute('INSERT INTO rollbacks VALUES(?,?,?,?)',(x['id'],x['plan'],x['at'],'restored'))
