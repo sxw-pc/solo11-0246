@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS access_blocks(id TEXT PRIMARY KEY,host TEXT,claim_epo
 CREATE TABLE IF NOT EXISTS access_replicas(id TEXT PRIMARY KEY,block_id TEXT,site TEXT,object_key TEXT,version TEXT,digest TEXT,status TEXT);
 CREATE TABLE IF NOT EXISTS erasure_tickets(id TEXT PRIMARY KEY,customer TEXT,host TEXT,before_at INTEGER,status TEXT);
 CREATE TABLE IF NOT EXISTS hold_notices(id TEXT PRIMARY KEY,customer TEXT,host TEXT,start_at INTEGER,end_at INTEGER,issued_at INTEGER,status TEXT);
+CREATE TABLE IF NOT EXISTS storage_objects(site TEXT,object_key TEXT,version TEXT,byte_digest TEXT,byte_count INTEGER,physical_state TEXT,PRIMARY KEY(site,object_key,version));
 """
 
 def connect(path):
@@ -46,8 +47,8 @@ def one(db,sql,args=()):
 def rows(db,sql,args=()):return [dict(r) for r in db.execute(sql,args)]
 
 def execute(db,subsystem,step):
-    from . import ownership,certificate,cutover,access_archive
-    module={'ownership':ownership,'certificate':certificate,'cutover':cutover,'archive':access_archive}[subsystem]
+    from . import ownership,certificate,cutover,access_archive,object_storage
+    module={'ownership':ownership,'certificate':certificate,'cutover':cutover,'archive':access_archive,'storage':object_storage}[subsystem]
     with tx(db):
         old=one(db,'SELECT * FROM events WHERE request_id=?',(step['request_id'],))
         if old:
