@@ -1,0 +1,44 @@
+[
+ {"subsystem":"settlement","request_id":"e-win","op":"service_window","id":"win-1","merchant":"m-shop","start_ts":100,"end_ts":200},
+ {"subsystem":"settlement","request_id":"e-acc","op":"open_account","merchant":"m-shop","account_no":"acct-1","at":90},
+
+ {"subsystem":"settlement","request_id":"e-r1","op":"ingress","merchant":"m-shop","order_no":"O1","at":110},
+ {"subsystem":"settlement","request_id":"e-g1","op":"gateway_receipt","receipt_id":"gr1","ingress_request_id":"e-r1","accepted":true,"at":110},
+ {"subsystem":"settlement","request_id":"e-r2","op":"ingress","merchant":"m-shop","order_no":"O2","at":112},
+ {"subsystem":"settlement","request_id":"e-g2","op":"gateway_receipt","receipt_id":"gr2","ingress_request_id":"e-r2","accepted":true,"at":112},
+ {"subsystem":"settlement","request_id":"e-r3","op":"ingress","merchant":"m-shop","order_no":"O3","at":114},
+ {"subsystem":"settlement","request_id":"e-g3","op":"gateway_receipt","receipt_id":"gr3","ingress_request_id":"e-r3","accepted":true,"at":114},
+ {"subsystem":"settlement","request_id":"e-r4","op":"ingress","merchant":"m-shop","order_no":"O4","at":116},
+ {"subsystem":"settlement","request_id":"e-g4","op":"gateway_receipt","receipt_id":"gr4","ingress_request_id":"e-r4","accepted":true,"at":116},
+ {"subsystem":"settlement","request_id":"e-r5","op":"ingress","merchant":"m-shop","order_no":"O5","at":118},
+ {"subsystem":"settlement","request_id":"e-g5","op":"gateway_receipt","receipt_id":"gr5","ingress_request_id":"e-r5","accepted":true,"at":118},
+ {"subsystem":"settlement","request_id":"e-r6","op":"ingress","merchant":"m-shop","order_no":"O6","at":120},
+ {"subsystem":"settlement","request_id":"e-g6","op":"gateway_receipt","receipt_id":"gr6","ingress_request_id":"e-r6","accepted":true,"at":120},
+
+ {"subsystem":"settlement","request_id":"e-r7a","op":"ingress","merchant":"m-shop","order_no":"O7","at":130},
+ {"subsystem":"settlement","request_id":"e-g7a","op":"gateway_receipt","receipt_id":"gr7a","ingress_request_id":"e-r7a","accepted":true,"at":130},
+ {"subsystem":"settlement","request_id":"e-r7b","op":"ingress","merchant":"m-shop","order_no":"O7","at":132,"retries_of":"e-r7a"},
+ {"subsystem":"settlement","request_id":"e-g7b","op":"gateway_receipt","receipt_id":"gr7b","ingress_request_id":"e-r7b","accepted":true,"at":132},
+ {"subsystem":"settlement","request_id":"e-r7c","op":"ingress","merchant":"m-shop","order_no":"O7","at":134,"retries_of":"e-r7a"},
+ {"subsystem":"settlement","request_id":"e-g7c","op":"gateway_receipt","receipt_id":"gr7c","ingress_request_id":"e-r7c","accepted":true,"at":134},
+
+ {"subsystem":"settlement","request_id":"e-r8","op":"ingress","merchant":"m-shop","order_no":"O8","at":140},
+ {"subsystem":"settlement","request_id":"e-g8","op":"gateway_receipt","receipt_id":"gr8","ingress_request_id":"e-r8","accepted":true,"at":140},
+
+ {"subsystem":"settlement","request_id":"e-r9","op":"ingress","merchant":"m-shop","order_no":"O9","at":145},
+ {"subsystem":"settlement","request_id":"e-g9","op":"gateway_receipt","receipt_id":"gr9","ingress_request_id":"e-r9","accepted":true,"at":145},
+
+ {"subsystem":"settlement","request_id":"e-c1","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc1","order_no":"O1","success":true,"at":150},
+ {"subsystem":"settlement","request_id":"e-c2","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc2","order_no":"O2","success":true,"at":151},
+ {"subsystem":"settlement","request_id":"e-c3","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc3","order_no":"O3","success":true,"at":152},
+ {"subsystem":"settlement","request_id":"e-c4","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc4","order_no":"O4","success":true,"at":153},
+ {"subsystem":"settlement","request_id":"e-c5","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc5","order_no":"O5","success":true,"at":154},
+ {"subsystem":"settlement","request_id":"e-c6","op":"cashier_confirmation","merchant":"m-shop","confirmation_id":"cc6","order_no":"O6","success":true,"at":155},
+
+ {"subsystem":"settlement","request_id":"e-bk7","op":"bank_clearing","merchant":"m-shop","clearing_no":"clr-7","order_no":"O7","paid":true,"bounced":false,"at":160},
+ {"subsystem":"settlement","request_id":"e-rp7","op":"backend_replay","merchant":"m-shop","replay_id":"rp7","order_no":"O7","success":true,"clearing_no":"clr-7","at":165},
+ {"subsystem":"settlement","request_id":"e-rp8","op":"backend_replay","merchant":"m-shop","replay_id":"rp8","order_no":"O8","success":true,"at":166},
+
+ {"subsystem":"settlement","request_id":"e-case","op":"open_case","case_id":"case-1","merchant":"m-shop","window_id":"win-1","plan_id":"cut-1","unit_cents":100,"at":170},
+ {"subsystem":"settlement","request_id":"e-eval","op":"evaluate","case_id":"case-1","at":171}
+]

@@ -15,6 +15,21 @@ CREATE TABLE IF NOT EXISTS backends(id TEXT PRIMARY KEY,healthy INTEGER,epoch IN
 CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY,host TEXT,claim_epoch INTEGER,serial TEXT,gateway TEXT,old_backend TEXT,new_backend TEXT,old_epoch INTEGER,new_epoch INTEGER,stage INTEGER,status TEXT);
 CREATE TABLE IF NOT EXISTS samples(id TEXT PRIMARY KEY,plan_id TEXT,stage INTEGER,at INTEGER,healthy INTEGER);
 CREATE TABLE IF NOT EXISTS rollbacks(id TEXT PRIMARY KEY,plan_id TEXT,at INTEGER,status TEXT);
+CREATE TABLE IF NOT EXISTS service_windows(id TEXT PRIMARY KEY,merchant TEXT,start_ts INTEGER,end_ts INTEGER);
+CREATE TABLE IF NOT EXISTS ingress_requests(request_id TEXT PRIMARY KEY,merchant TEXT,order_no TEXT,at INTEGER,retries_of TEXT);
+CREATE TABLE IF NOT EXISTS gateway_receipts(receipt_id TEXT PRIMARY KEY,request_id TEXT,accepted INTEGER,at INTEGER);
+CREATE TABLE IF NOT EXISTS cashier_confirmations(confirmation_id TEXT PRIMARY KEY,merchant TEXT,order_no TEXT,success INTEGER,at INTEGER);
+CREATE TABLE IF NOT EXISTS purchase_replays(replay_id TEXT PRIMARY KEY,merchant TEXT,order_no TEXT,success INTEGER,clearing_no TEXT,at INTEGER);
+CREATE TABLE IF NOT EXISTS bank_clearing(clearing_no TEXT PRIMARY KEY,merchant TEXT,order_no TEXT,paid INTEGER,bounced INTEGER,at INTEGER);
+CREATE TABLE IF NOT EXISTS refunds(refund_id TEXT PRIMARY KEY,merchant TEXT,order_no TEXT,at INTEGER);
+CREATE TABLE IF NOT EXISTS merchant_accounts(merchant TEXT PRIMARY KEY,account_no TEXT,status TEXT,at INTEGER);
+CREATE TABLE IF NOT EXISTS account_changes(change_id TEXT PRIMARY KEY,merchant TEXT,old_account TEXT,new_account TEXT,reason TEXT,at INTEGER);
+CREATE TABLE IF NOT EXISTS sla_cases(case_id TEXT PRIMARY KEY,merchant TEXT,window_id TEXT,plan_id TEXT,unit_cents INTEGER,mode TEXT,status TEXT,opened_at INTEGER);
+CREATE TABLE IF NOT EXISTS claim_items(id TEXT PRIMARY KEY,case_id TEXT,order_no TEXT,canonical_request TEXT,attempts INTEGER,accepted_in_window INTEGER,status TEXT,basis TEXT,amount_cents INTEGER,updated_at INTEGER);
+CREATE TABLE IF NOT EXISTS preservation_commitments(commitment_id TEXT PRIMARY KEY,case_id TEXT,cap_cents INTEGER,signed_at INTEGER);
+CREATE TABLE IF NOT EXISTS invoices(invoice_no TEXT PRIMARY KEY,case_id TEXT,period TEXT,amount_cents INTEGER,mode TEXT,issued_at INTEGER);
+CREATE TABLE IF NOT EXISTS bank_payments(bank_ref TEXT PRIMARY KEY,entry_id TEXT,account_no TEXT,amount_cents INTEGER,direction TEXT,status TEXT,at INTEGER);
+CREATE TABLE IF NOT EXISTS ledger_entries(entry_id TEXT PRIMARY KEY,case_id TEXT,request_id TEXT,order_no TEXT,kind TEXT,amount_cents INTEGER,merchant_delta INTEGER,gl_account TEXT,gl_delta INTEGER,period TEXT,origin_entry TEXT,origin_invoice TEXT,bank_ref TEXT,at INTEGER);
 CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT,subsystem TEXT,request_id TEXT UNIQUE,input TEXT,result TEXT);
 """
 
@@ -42,8 +57,8 @@ def one(db,sql,args=()):
 def rows(db,sql,args=()):return [dict(r) for r in db.execute(sql,args)]
 
 def execute(db,subsystem,step):
-    from . import ownership,certificate,cutover
-    module={'ownership':ownership,'certificate':certificate,'cutover':cutover}[subsystem]
+    from . import ownership,certificate,cutover,sla_settlement
+    module={'ownership':ownership,'certificate':certificate,'cutover':cutover,'settlement':sla_settlement}[subsystem]
     with tx(db):
         old=one(db,'SELECT * FROM events WHERE request_id=?',(step['request_id'],))
         if old:
