@@ -23,6 +23,11 @@ def connect(path):
     db.row_factory=sqlite3.Row
     db.execute('PRAGMA busy_timeout=3000')
     db.executescript(SCHEMA)
+    # The SAN retirement tables live in their module; creating them on every
+    # connection keeps replay source/target table sets identical even when a
+    # test only used the read-only adjudication helpers directly.
+    from . import san_retirement
+    san_retirement.ensure_schema(db)
     return db
 
 @contextmanager
@@ -42,8 +47,14 @@ def one(db,sql,args=()):
 def rows(db,sql,args=()):return [dict(r) for r in db.execute(sql,args)]
 
 def execute(db,subsystem,step):
-    from . import ownership,certificate,cutover
-    module={'ownership':ownership,'certificate':certificate,'cutover':cutover}[subsystem]
+    from . import ownership,certificate,cutover,san_retirement
+    modules={'ownership':ownership,'certificate':certificate,'cutover':cutover,
+             'san_retirement':san_retirement,'san-retirement':san_retirement,
+             'retirement':san_retirement,'san':san_retirement,
+             'retire':san_retirement,'handoff':san_retirement,
+             'san_handoff':san_retirement}
+    module=modules.get(subsystem)
+    if module is None:raise ValueError(subsystem)
     with tx(db):
         old=one(db,'SELECT * FROM events WHERE request_id=?',(step['request_id'],))
         if old:
