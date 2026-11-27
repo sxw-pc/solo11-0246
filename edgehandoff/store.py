@@ -28,6 +28,8 @@ def connect(path):
     db.row_factory=sqlite3.Row
     db.execute('PRAGMA busy_timeout=3000')
     db.executescript(SCHEMA)
+    from .erasure import ensure_schema
+    ensure_schema(db)
     return db
 
 @contextmanager
@@ -47,8 +49,12 @@ def one(db,sql,args=()):
 def rows(db,sql,args=()):return [dict(r) for r in db.execute(sql,args)]
 
 def execute(db,subsystem,step):
-    from . import ownership,certificate,cutover,access_archive,object_storage
-    module={'ownership':ownership,'certificate':certificate,'cutover':cutover,'archive':access_archive,'storage':object_storage}[subsystem]
+    from . import ownership,certificate,cutover,access_archive,object_storage,erasure
+    module={'ownership':ownership,'certificate':certificate,'cutover':cutover,
+            'archive':access_archive,'storage':object_storage,
+            'erasure':erasure,'deletion':erasure,'erase':erasure,'privacy':erasure,
+            'retention':erasure,'legal_hold':erasure,'preservation':erasure,
+            'compliance':erasure,'proof':erasure}[subsystem]
     with tx(db):
         old=one(db,'SELECT * FROM events WHERE request_id=?',(step['request_id'],))
         if old:

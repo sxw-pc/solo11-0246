@@ -1,0 +1,90 @@
+[
+  {
+    "request_id": "scene",
+    "subsystem": "erasure",
+    "op": "scene",
+    "include_transfer": true,
+    "include_hold": true,
+    "include_false_proof": true
+  },
+  {
+    "request_id": "correct-false-proof",
+    "subsystem": "erasure",
+    "op": "append_correction",
+    "id": "proof-corr-q",
+    "amends_id": "proof-central",
+    "at": 26,
+    "conclusion": "false_claim_bytes_still_present",
+    "reason": "central_ack recorded deleted but object versions, gateway cache and backup were never physically verified"
+  },
+  {
+    "request_id": "quarantine",
+    "subsystem": "erasure",
+    "op": "disposition_quarantine",
+    "ticket_id": "e1",
+    "at": 30,
+    "proof_id": "proof-quarantine",
+    "schedule_id": "hold-list-q"
+  },
+  {
+    "request_id": "ordinary-access-denied",
+    "subsystem": "erasure",
+    "op": "ordinary_access",
+    "copy_id": "cp-west-v1",
+    "at": 31
+  },
+  {
+    "request_id": "statement-quarantined",
+    "subsystem": "erasure",
+    "op": "customer_statement",
+    "ticket_id": "e1",
+    "at": 32
+  },
+  {
+    "request_id": "gateway-backfill",
+    "subsystem": "erasure",
+    "op": "gateway_report",
+    "copy_id": "cp-gw",
+    "at": 33,
+    "state": "purged",
+    "digest": "sha-g1",
+    "purged_at": 31,
+    "report_id": "gw-report-q"
+  },
+  {
+    "request_id": "release-without-device-cert-blocked",
+    "subsystem": "erasure",
+    "op": "release_and_destroy",
+    "ticket_id": "e1",
+    "notice_id": "h1",
+    "fragment_id": "frag-quarantine-cp-west-v1",
+    "at": 40,
+    "release": {
+      "id": "rel-q",
+      "notice_id": "h1",
+      "issuer": "issuer-court",
+      "case_ref": "CASE-4821",
+      "released_at": 39,
+      "document_ref": "release-document-q"
+    }
+  },
+  {
+    "request_id": "destroy-with-device-cert",
+    "subsystem": "erasure",
+    "op": "release_and_destroy",
+    "ticket_id": "e1",
+    "notice_id": "h1",
+    "fragment_id": "frag-quarantine-cp-west-v1",
+    "at": 41,
+    "device_cert_id": "device-cert-q",
+    "media_ref": "media-west-7",
+    "proof_id": "proof-q-final"
+  },
+  {
+    "request_id": "statement-complete",
+    "subsystem": "erasure",
+    "op": "customer_statement",
+    "ticket_id": "e1",
+    "at": 45
+  }
+]

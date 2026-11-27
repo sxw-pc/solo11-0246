@@ -1,0 +1,92 @@
+[
+  {
+    "request_id": "scene",
+    "subsystem": "erasure",
+    "op": "scene",
+    "include_transfer": true,
+    "include_hold": true,
+    "include_false_proof": true
+  },
+  {
+    "request_id": "correct-false-proof",
+    "subsystem": "erasure",
+    "op": "append_correction",
+    "id": "proof-corr-1",
+    "amends_id": "proof-central",
+    "at": 26,
+    "conclusion": "false_claim_bytes_still_present",
+    "reason": "central_ack is only a local adjudication; inspect shows west v1 and the old version still present and the east destroy receipt was lost",
+    "corrected": {
+      "central_ack_means_physical_deletion": false,
+      "east_v2_command": "committed_but_unacked_needs_recognition",
+      "west_v1_physical_state": "present"
+    }
+  },
+  {
+    "request_id": "scope",
+    "subsystem": "erasure",
+    "op": "resolve_scope",
+    "ticket_id": "e1",
+    "at": 30
+  },
+  {
+    "request_id": "split",
+    "subsystem": "erasure",
+    "op": "disposition_split",
+    "ticket_id": "e1",
+    "at": 30,
+    "splittable": true,
+    "proof_id": "proof-split",
+    "schedule_id": "hold-list-1"
+  },
+  {
+    "request_id": "statement-held",
+    "subsystem": "erasure",
+    "op": "customer_statement",
+    "ticket_id": "e1",
+    "at": 33
+  },
+  {
+    "request_id": "gateway-backfill",
+    "subsystem": "erasure",
+    "op": "gateway_report",
+    "copy_id": "cp-gw",
+    "at": 34,
+    "state": "purged",
+    "digest": "sha-g1",
+    "purged_at": 31,
+    "report_id": "gw-report-1"
+  },
+  {
+    "request_id": "statement-gateway-verified",
+    "subsystem": "erasure",
+    "op": "customer_statement",
+    "ticket_id": "e1",
+    "at": 35
+  },
+  {
+    "request_id": "release-and-destroy",
+    "subsystem": "erasure",
+    "op": "release_and_destroy",
+    "ticket_id": "e1",
+    "notice_id": "h1",
+    "fragment_id": "frag-h1",
+    "at": 40,
+    "release": {
+      "id": "rel-1",
+      "notice_id": "h1",
+      "issuer": "issuer-court",
+      "case_ref": "CASE-4821",
+      "released_at": 39,
+      "document_ref": "release-document-9"
+    },
+    "proof_id": "proof-final"
+  },
+  {
+    "request_id": "statement-complete",
+    "subsystem": "erasure",
+    "op": "customer_statement",
+    "ticket_id": "e1",
+    "at": 45
+  }
+]

@@ -34,4 +34,7 @@ def run(db, step):
             return {'decision': 'unknown_ticket'}
         count = len(rows(db, 'SELECT id FROM access_replicas WHERE status=?', ('present',)))
         return {'decision': ticket['status'], 'known_present_replicas': count}
-    raise ValueError(op)
+    # Completion layer: scope resolution, external reconciliation, preservation
+    # minimisation, segmented proof and corrections live in edgehandoff.erasure.
+    from . import erasure
+    return erasure.run(db, step)
